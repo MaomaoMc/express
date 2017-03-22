@@ -1,0 +1,63 @@
+<!DOCTYPE>
+<html>
+    <head></head>
+    <body>
+    <h1>列表</h1>
+    <table>
+        <tr>
+            <td>标题</td>
+            <td>作者</td>
+            <td>创建时间</td>
+        </tr>
+        <% for(var i=0, len=data.length; i<len; i++) { %>
+        <tr>
+            <td><a href="/user/list/<%=data[i].id %>.html" title="<%=data[i].title %>"><%=data[i].title %></a></td>
+            <td><%=data[i].username %></td>
+            <td><%=data[i].createtime %></td>
+        </tr>
+        <% } %>
+    </table>
+    <% if(user.username){ %>
+    <!-- 在登录状态展示输入框 -->
+    <div class="add">
+        <p><input type="text" class="title"></p>
+        <textarea class="content" cols="100" rows="10"></textarea>
+        <p><input type="button" class="submit" value="提交"><span class="tip"></span></p>
+    </div>
+    <% }%>
+    <script src="http://mat1.gtimg.com/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script>
+        var running = false;
+        $('.submit').on('click', function(){
+            if(running) return;
+            running = true;
+            $('.tip').text('');
+
+            var title = $('.add .title').val();
+            content = $('.add .content').val();
+            if(!title || !content){
+                $('.tip').text('*输入不能为空');
+                return;
+            }
+            $('.tip').text('数据正在提交中...');
+
+            $.ajax({
+                url : '/user/addtopic', // 提交接口
+                data : {title:title, content:content},
+                dataType : 'json',
+                type : 'get'
+            }).done(function(result){
+                if(result.code==0){
+                    var html = '<tr><td><a href="'+result.data.url+'" title="'+result.data.title+'">'+result.data.title+'</a></td><td>'+result.data.author+'</td><td>'+result.data.createtime+'</td></tr>';
+                    $('table').append(html);
+                    $('.tip').text('');
+                    $('.title, .content').val('');
+                }else{
+                    $('.tip').text('添加失败');
+                }
+                running = false;
+            })
+        })
+    </script>
+    </body>
+</html>
